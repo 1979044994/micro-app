@@ -1,19 +1,28 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import CircularMenu from "./components/CircularMenu.vue";
+import { reactive } from "vue";
+const child = reactive([
+  { name: "R", route: "/app-react" },
+  { name: "S", route: "/app-svelte" },
+  { name: "V", route: "/app-vue" },
+  { name: "A", route: "/app-admin" },
+]);
 </script>
 
 <template>
-   <div class="change">
-    <RouterLink to="/app-react">Go to React</RouterLink>
-    <RouterLink to="/app-svelte">Go to SVELTE</RouterLink>
-    <RouterLink to="/app-vue">Go to VUE2</RouterLink>
-  </div>
-<router-view></router-view>
+  <CircularMenu :child="child" />
+  <router-view></router-view>
 </template>
 
 <style scoped>
-.change{
+.change {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #316c72ff;
 }
 </style>

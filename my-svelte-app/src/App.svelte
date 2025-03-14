@@ -1,47 +1,81 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import Header from "./components/common/Header.svelte";
+  import Dashboard from "./components/dashboard/Dashboard.svelte";
+  import ExerciseLog from "./components/exerciseLog/ExerciseLog.svelte";
+  import FoodLog from "./components/foodLog/FoodLog.svelte";
+  import FoodSearch from "./components/foodSearch/FoodSearch.svelte";
+  import ModulesContainer from "./components/layout/ModulesContainer.svelte";
+
+  // 用户数据(后期可考虑移到stores中)
+  let user = {
+    name: "张明",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    dailyGoal: 2000, // 卡路里
+    currentIntake: 1450,
+    waterIntake: 6, // 杯
+    waterGoal: 8,
+    streak: 7, // 连续记录天数
+  };
+
+  // 各个模块的可见性控制
+  let moduleVisibility = {
+    dashboard: true,
+    foodLog: true,
+    foodSearch: true,
+    exerciseLog: true,
+  };
+
+  // 切换模块可见性的函数
+  function toggleModule(moduleName) {
+    moduleVisibility[moduleName] = !moduleVisibility[moduleName];
+  }
 </script>
 
-<main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+<main class="diet-app">
+  <Header />
+  <ModulesContainer>
+    <Dashboard
+      {user}
+      visible={moduleVisibility.dashboard}
+      on:toggleVisibility={() => toggleModule("dashboard")}
+    />
+    <FoodLog
+      visible={moduleVisibility.foodLog}
+      on:toggleVisibility={() => toggleModule("foodLog")}
+    />
+    <FoodSearch
+      visible={moduleVisibility.foodSearch}
+      on:toggleVisibility={() => toggleModule("foodSearch")}
+    />
+    <ExerciseLog
+      visible={moduleVisibility.exerciseLog}
+      on:toggleVisibility={() => toggleModule("exerciseLog")}
+    />
+  </ModulesContainer>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  /* 保留基本样式，其他移到global.css */
+  .diet-app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 10px;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+  :global(:root) {
+    --primary-color: #4caf50;
+    --primary-dark: #388e3c;
+    --primary-light: #c8e6c9;
+    --accent-color: #ff9800;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --background-light: #f5f5f5;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+
+  :global(body) {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-light);
   }
 </style>

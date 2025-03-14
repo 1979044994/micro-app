@@ -1,4 +1,14 @@
-*{
+/* *{
   margin: 0;
   padding: 0;
+} */
+/* micro-app[name=app-admin], micro-app-body{
+  overflow: scroll !important;
+} */
+body{
+  margin: 0;
+  padding: 0;
+}
+micro-app, micro-app-body{
+  min-height: 100vh;
 }

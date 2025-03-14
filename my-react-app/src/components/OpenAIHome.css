@@ -1,0 +1,91 @@
+.openai-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: white;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar {
+  width: 250px;
+  padding: 2rem 1rem;
+  border-right: 1px solid #e5e5e5;
+}
+
+.sidebar-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-item:hover {
+  background-color: #f5f5f5;
+}
+
+.content {
+  flex: 1;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-weight: bold;
+}
+
+.search-container {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ant-input-affix-wrapper {
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.ant-btn {
+  border-radius: 20px;
+  padding: 0 20px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.search-icon {
+  font-size: 20px;
+  color: #666;
+}

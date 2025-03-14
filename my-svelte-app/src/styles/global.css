@@ -1,0 +1,58 @@
+:root {
+  /* 颜色变量 */
+  --primary-color: #4caf50;
+  --primary-dark: #388e3c;
+  --primary-light: #c8e6c9;
+  --accent-color: #ff5722;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --background-light: #f5f5f5;
+  --background-white: #ffffff;
+  --error-color: #f44336;
+  --warning-color: #ffc107;
+  --info-color: #2196f3;
+  --success-color: #4caf50;
+  --border-radius: 12px;
+  --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 基本样式 */
+body {
+  font-family: "Segoe UI", "PingFang SC", "微软雅黑", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+/* Material Icons样式 */
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 通用动画 */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
