@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import Module from "../common/Module.svelte";
+  import { fade, fly, slide } from "svelte/transition";
   import ExerciseItem from "./ExerciseItem.svelte";
   import ExerciseTabs from "./ExerciseTabs.svelte";
 
@@ -26,6 +26,8 @@
   // 新增运动表单数据
   let showAddForm = false;
   let newExercise = {};
+  let containerElement;
+  let isScrolling = false;
 
   // 重置新运动表单数据
   function resetNewExercise() {
@@ -75,7 +77,7 @@
         return;
       }
 
-      // 修复: 处理空字符串的weight，转换为数字
+      // 处理空字符串的weight，转换为数字
       if (newExercise.weight === "") {
         newExercise.weight = 0;
       } else {
@@ -107,54 +109,88 @@
   }
 </script>
 
-<Module
-  title="今日运动记录"
-  {visible}
-  borderColor="var(--accent-color)"
-  on:toggleVisibility={() => dispatch("toggleVisibility")}
->
-  <ExerciseTabs {activeType} on:select={selectType} />
+<div class="exercise-page">
+  <div class="page-header">
+    <button class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <h2>运动记录</h2>
+    <button class="action-icon">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+  </div>
 
-  <div class="exercise-content">
+  <!-- 运动类型标签 -->
+  <div class="exercise-tabs-container">
+    <ExerciseTabs {activeType} on:select={selectType} />
+  </div>
+
+  <!-- 运动列表 -->
+  <div class="exercise-list-container" bind:this={containerElement}>
     <div class="exercise-summary">
-      <div class="exercise-header">
-        <h3>{activeType}</h3>
-        {#if activeType === "有氧运动"}
-          <span class="total-calories">
-            {exercises[activeType].reduce((sum, ex) => sum + ex.calories, 0)} 卡路里
-          </span>
+      <h3>
+        {#if activeType === "无氧运动"}
+          <i class="fas fa-dumbbell"></i>
+        {:else}
+          <i class="fas fa-running"></i>
         {/if}
-      </div>
+        {activeType}
+      </h3>
+      {#if activeType === "有氧运动"}
+        <span class="total-calories" in:fly={{ y: -20, duration: 300 }}>
+          <i class="fas fa-fire-flame-curved"></i>
+          {exercises[activeType].reduce((sum, ex) => sum + ex.calories, 0)} 卡路里
+        </span>
+      {/if}
+    </div>
 
-      <ul class="exercise-list">
-        {#each exercises[activeType] as exercise}
+    <ul class="exercise-list" class:empty={exercises[activeType].length === 0}>
+      {#each exercises[activeType] as exercise, i (exercise.name)}
+        <li in:fly={{ y: 20, delay: i * 100, duration: 300 }}>
           <ExerciseItem
             {exercise}
             type={activeType}
             on:edit={editExercise}
             on:delete={deleteExercise}
           />
-        {/each}
+        </li>
+      {:else}
+        <li class="empty-state" in:fade={{ duration: 300 }}>
+          <i class="fas fa-heart-pulse"></i>
+          <p>还没有添加{activeType}</p>
+          <span>开始记录你的健身进度吧</span>
+        </li>
+      {/each}
+    </ul>
 
-        {#if exercises[activeType].length === 0}
-          <li class="empty-state">还没有添加{activeType}</li>
-        {/if}
-      </ul>
-
+    <!-- 添加运动区域 -->
+    <div class="action-container">
       {#if showAddForm}
-        <div class="add-exercise-form">
+        <div class="add-exercise-form" in:slide={{ duration: 300 }}>
+          <div class="form-header">
+            <h4>添加{activeType}</h4>
+            <button class="close-btn" on:click={cancelAdd}>
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
           <div class="form-group">
-            <input
-              type="text"
-              placeholder="运动名称"
-              bind:value={newExercise.name}
-            />
+            <div class="input-with-icon">
+              <i class="fas fa-clipboard"></i>
+              <input
+                type="text"
+                placeholder="运动名称"
+                bind:value={newExercise.name}
+              />
+            </div>
           </div>
 
           {#if activeType === "无氧运动"}
             <div class="form-row">
               <div class="form-group half">
-                <label for="exercise-sets">组数</label>
+                <label for="exercise-sets">
+                  <i class="fas fa-layer-group"></i> 组数
+                </label>
                 <input
                   id="exercise-sets"
                   type="number"
@@ -163,7 +199,9 @@
                 />
               </div>
               <div class="form-group half">
-                <label for="exercise-reps">次数</label>
+                <label for="exercise-reps">
+                  <i class="fas fa-repeat"></i> 次数
+                </label>
                 <input
                   id="exercise-reps"
                   type="number"
@@ -173,7 +211,9 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="exercise-weight">重量 (kg)</label>
+              <label for="exercise-weight">
+                <i class="fas fa-weight-hanging"></i> 重量 (kg)
+              </label>
               <input
                 id="exercise-weight"
                 type="number"
@@ -184,7 +224,9 @@
           {:else}
             <div class="form-row">
               <div class="form-group half">
-                <label for="exercise-duration">时长 (分钟)</label>
+                <label for="exercise-duration">
+                  <i class="fas fa-clock"></i> 时长 (分钟)
+                </label>
                 <input
                   id="exercise-duration"
                   type="number"
@@ -193,7 +235,9 @@
                 />
               </div>
               <div class="form-group half">
-                <label for="exercise-calories">消耗卡路里</label>
+                <label for="exercise-calories">
+                  <i class="fas fa-fire"></i> 消耗卡路里
+                </label>
                 <input
                   id="exercise-calories"
                   type="number"
@@ -206,113 +250,256 @@
 
           <div class="form-actions">
             <button class="cancel-btn" on:click={cancelAdd}>取消</button>
-            <button class="save-btn" on:click={addExercise}>保存</button>
+            <button class="save-btn" on:click={addExercise}>
+              <i class="fas fa-check"></i> 保存
+            </button>
           </div>
         </div>
       {:else}
         <button class="add-exercise-btn" on:click={addExercise}>
-          <i class="material-icons">add</i>
+          <i class="fas fa-plus-circle"></i>
           添加{activeType}
         </button>
       {/if}
     </div>
   </div>
-</Module>
+</div>
 
 <style>
-  .exercise-content {
-    padding: 5px 0;
+  .exercise-page {
+    padding: 15px;
   }
 
-  .exercise-header {
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .page-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+
+  .action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .exercise-summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
   }
 
-  .exercise-header h3 {
+  .exercise-summary h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .exercise-summary h3 i {
+    color: var(--accent-color);
+    font-size: 1.1rem;
   }
 
   .total-calories {
-    background-color: var(--primary-light);
-    color: var(--primary-dark);
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
+    background: linear-gradient(
+      120deg,
+      var(--primary-color),
+      var(--accent-color)
+    );
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
     font-weight: 500;
+    box-shadow: 0 3px 8px rgba(255, 87, 34, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .total-calories i {
+    font-size: 0.8rem;
   }
 
   .exercise-list {
     list-style: none;
     padding: 0;
     margin: 0 0 15px 0;
-    max-height: 300px;
+    max-height: 350px;
     overflow-y: auto;
     scrollbar-width: thin;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 5px;
+    background: rgba(250, 250, 250, 0.8);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+  }
+
+  .exercise-list.empty {
+    padding: 30px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .empty-state {
     text-align: center;
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    padding: 20px 0;
-    font-style: italic;
+    font-size: 0.95rem;
+    padding: 25px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .empty-state i {
+    font-size: 2rem;
+    color: var(--accent-color);
+    opacity: 0.7;
+    margin-bottom: 5px;
+  }
+
+  .empty-state p {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .empty-state span {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  .action-container {
+    position: relative;
+    margin-top: 10px;
   }
 
   .add-exercise-btn {
-    background-color: var(--primary-color);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--primary-dark)
+    );
     color: white;
     border: none;
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.25);
     width: 100%;
   }
 
   .add-exercise-btn:hover {
-    background-color: var(--primary-dark);
-  }
-
-  .add-exercise-btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .add-exercise-btn i {
-    font-size: 1rem;
-    margin-right: 4px;
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.35);
+    transform: translateY(-2px);
   }
 
   /* 添加运动表单样式 */
   .add-exercise-form {
-    background-color: #f5f5f5;
-    border-radius: 8px;
-    padding: 12px;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
     margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .form-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    min-height: 36px;
+    min-width: 36px;
   }
 
   .form-group {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+  }
+
+  .input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-with-icon i {
+    position: absolute;
+    left: 12px;
+    color: var(--text-secondary);
+  }
+
+  .input-with-icon input {
+    padding-left: 35px;
   }
 
   .form-row {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 15px;
   }
 
   .form-group.half {
@@ -320,43 +507,83 @@
   }
 
   .form-group label {
-    display: block;
-    font-size: 0.8rem;
-    margin-bottom: 4px;
-    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .form-group label i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
   }
 
   .form-group input {
     width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
     box-sizing: border-box;
+    transition: all 0.2s;
+    background: #f9f9f9;
+  }
+
+  .form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+    outline: none;
+    background: white;
   }
 
   .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 12px;
+    gap: 12px;
+    margin-top: 20px;
   }
 
   .cancel-btn {
-    background-color: #f0f0f0;
-    color: #666;
+    background-color: #f5f5f5;
+    color: #555;
     border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
     cursor: pointer;
+    transition: all 0.2s;
+    min-height: 40px;
   }
 
   .save-btn {
-    background-color: var(--primary-color);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--primary-dark)
+    );
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.2);
+    min-height: 40px;
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 500px) {
+    .form-row {
+      flex-direction: column;
+      gap: 10px;
+    }
   }
 </style>

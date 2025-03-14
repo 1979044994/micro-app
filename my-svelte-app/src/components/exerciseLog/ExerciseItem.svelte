@@ -1,21 +1,24 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { slide } from "svelte/transition";
 
   export let exercise;
-  export let type; // "无氧运动" 或 "有氧运动"
+  export let type;
 
   const dispatch = createEventDispatcher();
 
-  function handleEdit() {
+  function edit() {
     dispatch("edit", exercise);
   }
 
-  function handleDelete() {
+  function remove() {
     dispatch("delete", exercise);
   }
+
+  let showActions = false;
 </script>
 
-<li class="exercise-item">
+<div class="exercise-item" on:click={() => (showActions = !showActions)}>
   <div class="exercise-details">
     <h4 class="exercise-name">{exercise.name}</h4>
 
@@ -34,15 +37,17 @@
     {/if}
   </div>
 
-  <div class="exercise-actions">
-    <button class="icon-btn" on:click={handleEdit}>
-      <i class="material-icons">edit</i>
-    </button>
-    <button class="icon-btn" on:click={handleDelete}>
-      <i class="material-icons">delete</i>
-    </button>
-  </div>
-</li>
+  {#if showActions}
+    <div class="exercise-actions" transition:slide>
+      <button class="icon-btn" on:click={edit}>
+        <i class="material-icons">edit</i>
+      </button>
+      <button class="icon-btn" on:click={remove}>
+        <i class="material-icons">delete</i>
+      </button>
+    </div>
+  {/if}
+</div>
 
 <style>
   .exercise-item {
